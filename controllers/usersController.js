@@ -2,7 +2,7 @@ const db = require('../models');
 const User = require('../models/user');
 
 module.exports = {
-  findAll: function (req, res) {
+  findAll: (req, res) => {
     db
       .User
       .find(req.query)
@@ -10,28 +10,28 @@ module.exports = {
       .then(dbModel => res.json(dbModel))
       .catch(err => res.status(422).json(err));
   },
-  findById: function (req, res) {
+  findById: (req, res) => {
     db
       .User
       .findById(req.params.id)
       .then(dbModel => res.json(dbModel))
       .catch(err => res.status(422).json(err));
   },
-  create: function (req, res) {
+  create: (req, res) => {
     db
       .User
       .create(req.body)
       .then(dbModel => res.json(dbModel))
       .catch(err => res.status(422).json(err));
   },
-  update: function (req, res) {
+  update: (req, res) => {
     User.findOneAndUpdate({
       _id: req.params.id
     }, req.body)
       .then(dbModel => res.json(dbModel))
       .catch(err => res.status(422).json(err));
   },
-  remove: function (req, res) {
+  remove: (req, res) => {
     db
       .User
       .findById({_id: req.params.id})
@@ -39,16 +39,16 @@ module.exports = {
       .then(dbModel => res.json(dbModel))
       .catch(err => res.status(422).json(err));
   },
-  register: function (req, res) {
+  register: (req, res) => {
     /* To create a new user */
     User
-      .register(new User({username: req.body.username}), req.body.password, function (err) {
+      .register(new User({username: req.body.username}), req.body.password, (err) => {
         if (err) {
           console.log('error while user register!', err);
           return res.status(422).json(err);
         }
         console.log('user registered!');
-        res.json(true);
+        return res.json(true);
       });
   }
 };

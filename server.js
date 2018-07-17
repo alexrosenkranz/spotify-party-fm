@@ -14,18 +14,19 @@ const routes = require('./routes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(morgan('dev')); // for logging
 
 // We need to use sessions to keep track of our user's login status
-app.use(session({secret: "keyboard cat", resave: true, saveUninitialized: true}));
+app.use(session({secret: 'keyboard cat', resave: true, saveUninitialized: true}));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Serve up static assets
-app.use(express.static('client/build'));
-// Add routes, both API and route to client/build
+// Serve up static assets (usually on heroku)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'));
+} // Add routes, both API and route to client/build
 app.use(routes);
 
 // Passport session setup.   To support persistent login sessions, Passport
@@ -42,24 +43,23 @@ passport.deserializeUser((obj, done) => {
   done(null, obj);
 });
 
-
 // Set up passport to authenticate
 const User = require('./models/user');
 
 passport.use(new SpotifyStrategy({
   clientID: process.env.SPOTIFYCLIENT,
   clientSecret: process.env.SPOTIFYSECRET,
-  callbackURL: "http://localhost:3001/api/auth/spotify/callback"
-},
-  (accessToken, refreshToken, expires_in, profile, done) => {
-    User.findOrCreate({ spotifyId: profile.id }, function (err, user) {
-      return done(err, user);
-    });
-  }
-));
+  callbackURL: 'http://localhost:3001/api/auth/spotify/callback'
+}, (accessToken, refreshToken, expiresIn, profile, done) => {
+  User.findOrCreate({
+    spotifyId: profile.id
+  }, (err, user) => done(err, user));
+}));
 
 // Connect to the Mongo DB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/spotify-fm');
+mongoose.connect(process.env.NODE_ENV === 'production'
+  ? process.env.MONGODB_URI
+  : 'mongodb://localhost/spotify-fm');
 
 // Start the API server
 app.listen(PORT, () => {

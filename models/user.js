@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+
+const {Schema} = mongoose;
 
 const UserSchema = new Schema({
   spotifyId: {
@@ -9,12 +10,10 @@ const UserSchema = new Schema({
   }
 });
 
-UserSchema.static("findOrCreate", async function(userInfo){
-  
+UserSchema.static('findOrCreate', async (userInfo) => {
   const user = await this.findOne(userInfo);
-
   return user || this.create(userInfo);
-})
+});
 
 const User = mongoose.model('User', UserSchema);
 
