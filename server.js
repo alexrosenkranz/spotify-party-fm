@@ -51,10 +51,13 @@ passport.use(new SpotifyStrategy({
   clientSecret: process.env.SPOTIFYSECRET,
   callbackURL: 'http://localhost:3001/api/auth/spotify/callback'
 }, (accessToken, refreshToken, expiresIn, profile, done) => {
+  console.log(profile);
   User.findOrCreate({
     spotifyId: profile.id
   }, (err, user) => done(err, user));
 }));
+
+mongoose.Promise = Promise;
 
 // Connect to the Mongo DB
 mongoose.connect(process.env.NODE_ENV === 'production'

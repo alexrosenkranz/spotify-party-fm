@@ -10,7 +10,7 @@ const UserSchema = new Schema({
   }
 });
 
-UserSchema.static('findOrCreate', async (userInfo) => {
+UserSchema.static('findOrCreate', async function (userInfo) {
   const user = await this.findOne(userInfo);
   return user || this.create(userInfo);
 });
