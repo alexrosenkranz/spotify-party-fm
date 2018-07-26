@@ -48,5 +48,14 @@ export default {
         Authorization: `Bearer ${accessToken}`
       }
     })
+  },
+  playTrack: function(spotifyURI, playerId, accessToken) {
+    return axios.put(`https://api.spotify.com/v1/me/player/play?device_id=${playerId}`, {
+      "uri": [spotifyURI]
+    }, {
+      headers: {
+        Authorization: `Bearer ${ accessToken }`
+      }
+    })
   }
 }

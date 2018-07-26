@@ -5,7 +5,9 @@ import API from './utils/API';
 let player;
 
 class App extends Component {
-  state = {}
+  state = {
+    showPlaylist: false
+  }
 
   componentDidMount() {
     const params = this.getHashParams();
@@ -15,6 +17,7 @@ class App extends Component {
     (Object.keys(params).length) ? this.getSpotifyProfile(params.access_token) : console.log("not loaded");
     this.setState(params);
   }
+  
 
   initializePlayer = (token) => {
     const that = this;
@@ -70,14 +73,14 @@ class App extends Component {
           return player.name === "Web Playback SDK Quick Start Player"
         })
         console.log(webPlayer)
-        // API.setWebPlayer(webPlayer.id, access_token)
-        //   .then(res => {
-        //     console.log(res.data);
-        //     this.setState({
-        //       activePlayer: webPlayer
-        //     })
-        //   })
-        //   .catch(err => console.log(err))        
+        API.setWebPlayer(webPlayer.id, access_token)
+          .then(res => {
+            console.log(res.data);
+            this.setState({
+              activePlayer: webPlayer
+            })
+          })
+          .catch(err => console.log(err))        
       })
       .catch(err => console.log(err))
   }
@@ -144,12 +147,22 @@ class App extends Component {
       .then(res => {
         console.log(res.data);
         this.setState({
-          activePlaylist: res.data
+          activePlaylist: res.data,
+          showPlaylist: true
         })
       })
       .catch(err => {
         console.log(err);
+      });
+  }
+
+  playTrack = (songURI) => {
+    console.log(songURI);
+    API.playTrack(songURI, this.state.activePlayer.id, this.state.access_token)
+      .then(res => {
+        console.log(res.data);
       })
+      .catch(err => {console.log(err)});
   }
 
   render() {
@@ -187,7 +200,7 @@ class App extends Component {
         </div>
         <div className="container">
           <div className="row">
-            {this.state.playlistData
+            {(this.state.playlistData && !this.state.showPlaylist)
               ? (this.state.playlistData.items.map(playlist => {
                 return (
                   <div className="col-3" key={playlist.id}>
@@ -207,7 +220,18 @@ class App extends Component {
                   </div>
                 )
               }))
-              : ""}
+              : (this.state.activePlaylist ? ( 
+                <div className="list-group">
+                {this.state.activePlaylist.items.map(songData => {
+                  return (
+                    <button 
+                    className="list-group-item list-group-item-action" key={songData.track.uri} onClick={() => this.playTrack(songData.track.uri)}>
+                        {songData.track.name} by {songData.track.artists[0].name}
+                    </button>
+                  )
+                })}
+                </div>
+              ) : "")}
           </div>
         </div>
       </div>
