@@ -1,13 +1,84 @@
 import React, {Component} from 'react';
 import API from './utils/API';
 
+// for scoping
+let player;
+
 class App extends Component {
   state = {}
 
   componentDidMount() {
     const params = this.getHashParams();
     console.log(params);
+    // if there's an access token, initialize the player
+    (Object.keys(params).length) ? this.initializePlayer(params.access_token) : console.log("not loaded");
     this.setState(params);
+  }
+
+  initializePlayer = (token) => {
+    const that = this;
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      player = new window.Spotify.Player({
+        name: 'Web Playback SDK Quick Start Player',
+        getOAuthToken: cb => {
+          cb(token);
+        }
+      });
+
+      // Error handling
+      player.addListener('initialization_error', ({message}) => {
+        console.error(message);
+      });
+      player.addListener('authentication_error', ({message}) => {
+        console.error(message);
+      });
+      player.addListener('account_error', ({message}) => {
+        console.error(message);
+      });
+      player.addListener('playback_error', ({message}) => {
+        console.error(message);
+      });
+
+      // Playback status updates
+      player.addListener('player_state_changed', state => {
+        console.log(state);
+      });
+
+      // Ready
+      player.addListener('ready', ({device_id}) => {
+        console.log('Ready with Device ID', device_id);
+        that.getSpotifyDevices(token)
+      });
+
+      // Not Ready
+      player.addListener('not_ready', ({device_id}) => {
+        console.log('Device ID has gone offline', device_id);
+      });
+
+      // Connect to the player!
+      player.connect();
+    };
+  }
+
+  // get spotify devices
+  getSpotifyDevices = (access_token) => {
+    API.getSpotifyDevices(access_token)
+      .then(res => {
+        console.log(res.data);
+        const webPlayer = res.data.devices.find(player => {
+          return player.name === "Web Playback SDK Quick Start Player"
+        })
+        console.log(webPlayer)
+        API.setWebPlayer(webPlayer.id, access_token)
+          .then(res => {
+            console.log(res.data);
+            this.setState({
+              activePlayer: webPlayer
+            })
+          })
+          .catch(err => console.log(err))        
+      })
+      .catch(err => console.log(err))
   }
 
   // get params out of url
@@ -100,30 +171,30 @@ class App extends Component {
           </div>
         </div>
         <div className="container">
-        <div className="row">
-          {this.state.playlistData
-            ? (this.state.playlistData.items.map(playlist => {
-              return (
-                <div className="col-3" key={playlist.id}>
-                  <div className="card">
-                    <img
-                      className="card-img-top"
-                      src={playlist.images[0].url}
-                      alt="playlist image"/>
-                    <div className="card-body">
-                      <h5 className="card-title">{playlist.name}</h5>
-                      <p className="card-text">{playlist.tracks.total
-                          ? playlist.tracks.total
-                          : 0}
-                        Tracks</p>
-                      <button className="btn btn-primary">Load Playlist</button>
+          <div className="row">
+            {this.state.playlistData
+              ? (this.state.playlistData.items.map(playlist => {
+                return (
+                  <div className="col-3" key={playlist.id}>
+                    <div className="card">
+                      <img
+                        className="card-img-top"
+                        src={playlist.images[0].url}
+                        alt="playlist cover"/>
+                      <div className="card-body">
+                        <h5 className="card-title">{playlist.name}</h5>
+                        <p className="card-text">{playlist.tracks.total
+                            ? playlist.tracks.total
+                            : 0}
+                          Tracks</p>
+                        <button className="btn btn-primary">Load Playlist</button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )
-            }))
-            : ""}
-        </div>
+                )
+              }))
+              : ""}
+          </div>
         </div>
       </div>
     );

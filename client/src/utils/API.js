@@ -24,5 +24,23 @@ export default {
         limit: 50
       }
     })
+  },
+  getSpotifyDevices : function (accessToken) {
+    return axios.get(`https://api.spotify.com/v1/me/player/devices`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+  },
+  setWebPlayer : function (playerId, accessToken) {
+    console.log(typeof playerId)
+    return axios.put(`https://api.spotify.com/v1/me/player`, {
+      "device_ids": [playerId],
+      "play": true
+    }, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
   }
 }

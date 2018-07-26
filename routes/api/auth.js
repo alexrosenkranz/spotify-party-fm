@@ -29,7 +29,7 @@ router
     res.cookie(stateKey, state);
 
     // your application requests authorization
-    const scope = 'user-read-private user-read-email user-read-playback-state';
+    const scope = 'streaming user-read-birthdate user-read-private user-read-email user-read-playback-state user-modify-playback-state';
     // authorize account and send to callback route
     res.redirect('https://accounts.spotify.com/authorize?' + querystring.stringify({response_type: 'code', client_id: process.env.SPOTIFYCLIENT, scope: scope, redirect_uri: 'http://localhost:3001/api/auth/spotify/callback', state: state}));
   });
