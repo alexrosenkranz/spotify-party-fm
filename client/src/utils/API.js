@@ -33,11 +33,17 @@ export default {
     })
   },
   setWebPlayer : function (playerId, accessToken) {
-    console.log(typeof playerId)
     return axios.put(`https://api.spotify.com/v1/me/player`, {
       "device_ids": [playerId],
       "play": true
     }, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+  },
+  getPlaylistTracks : function(userId, playlistId, accessToken) {
+    return axios.get(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`, {
       headers: {
         Authorization: `Bearer ${accessToken}`
       }

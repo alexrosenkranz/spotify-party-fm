@@ -12,6 +12,7 @@ class App extends Component {
     console.log(params);
     // if there's an access token, initialize the player
     (Object.keys(params).length) ? this.initializePlayer(params.access_token) : console.log("not loaded");
+    (Object.keys(params).length) ? this.getSpotifyProfile(params.access_token) : console.log("not loaded");
     this.setState(params);
   }
 
@@ -69,14 +70,14 @@ class App extends Component {
           return player.name === "Web Playback SDK Quick Start Player"
         })
         console.log(webPlayer)
-        API.setWebPlayer(webPlayer.id, access_token)
-          .then(res => {
-            console.log(res.data);
-            this.setState({
-              activePlayer: webPlayer
-            })
-          })
-          .catch(err => console.log(err))        
+        // API.setWebPlayer(webPlayer.id, access_token)
+        //   .then(res => {
+        //     console.log(res.data);
+        //     this.setState({
+        //       activePlayer: webPlayer
+        //     })
+        //   })
+        //   .catch(err => console.log(err))        
       })
       .catch(err => console.log(err))
   }
@@ -116,9 +117,9 @@ class App extends Component {
   }
 
   // get user profile
-  getSpotifyProfile = () => {
+  getSpotifyProfile = (access_token) => {
     API
-      .getSpotifyProfile(this.state.access_token)
+      .getSpotifyProfile(access_token)
       .then(res => {
         console.log(res.data);
         this.setState({userInfo: res.data})
@@ -135,6 +136,20 @@ class App extends Component {
         this.setState({playlistData: res.data})
       })
       .catch(err => console.log(err));
+  }
+
+  // get playlist tracks
+  getPlaylistTracks = (playlistId) => {
+    API.getPlaylistTracks(this.state.userInfo.id, playlistId, this.state.access_token)
+      .then(res => {
+        console.log(res.data);
+        this.setState({
+          activePlaylist: res.data
+        })
+      })
+      .catch(err => {
+        console.log(err);
+      })
   }
 
   render() {
@@ -185,9 +200,8 @@ class App extends Component {
                         <h5 className="card-title">{playlist.name}</h5>
                         <p className="card-text">{playlist.tracks.total
                             ? playlist.tracks.total
-                            : 0}
-                          Tracks</p>
-                        <button className="btn btn-primary">Load Playlist</button>
+                            : 0} Tracks</p>
+                        <button onClick={() => this.getPlaylistTracks(playlist.id)} className="btn btn-primary">Load Playlist</button>
                       </div>
                     </div>
                   </div>
