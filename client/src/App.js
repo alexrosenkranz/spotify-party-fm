@@ -11,7 +11,6 @@ class App extends Component {
 
   componentDidMount() {
     const params = this.getHashParams();
-    console.log(params);
     // if there's an access token, initialize the player
     (Object.keys(params).length) ? this.initializePlayer(params.access_token) : console.log("not loaded");
     (Object.keys(params).length) ? this.getSpotifyProfile(params.access_token) : console.log("not loaded");
@@ -23,7 +22,7 @@ class App extends Component {
     const that = this;
     window.onSpotifyWebPlaybackSDKReady = () => {
       player = new window.Spotify.Player({
-        name: 'Web Playback SDK Quick Start Player',
+        name: 'SpotifyFM',
         getOAuthToken: cb => {
           cb(token);
         }
@@ -111,7 +110,6 @@ class App extends Component {
     API
       .refreshToken(this.state.refresh_token)
       .then(res => {
-        console.log(res.data);
         this.setState({access_token: res.data.access_token})
       })
       .catch(err => {
@@ -124,7 +122,6 @@ class App extends Component {
     API
       .getSpotifyProfile(access_token)
       .then(res => {
-        console.log(res.data);
         this.setState({userInfo: res.data})
       })
       .catch(err => console.log(err));
@@ -135,7 +132,6 @@ class App extends Component {
     API
       .getSpotifyPlaylists(this.state.access_token)
       .then(res => {
-        console.log(res.data);
         this.setState({playlistData: res.data})
       })
       .catch(err => console.log(err));
@@ -145,7 +141,6 @@ class App extends Component {
   getPlaylistTracks = (playlistId) => {
     API.getPlaylistTracks(this.state.userInfo.id, playlistId, this.state.access_token)
       .then(res => {
-        console.log(res.data);
         this.setState({
           activePlaylist: res.data,
           showPlaylist: true
