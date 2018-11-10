@@ -69,7 +69,7 @@ class App extends Component {
       .then(res => {
         console.log(res.data);
         const webPlayer = res.data.devices.find(player => {
-          return player.name === "Web Playback SDK Quick Start Player"
+          return player.name === "SpotifyFM"
         })
         console.log(webPlayer)
         API.setWebPlayer(webPlayer.id, access_token)
